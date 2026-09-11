@@ -1,20 +1,31 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# SmartBill Solutions
 
-# Run and deploy your AI Studio app
+SmartBill Solutions is a full-stack household utility management platform designed to simplify bill payments, family expense tracking, financial analytics, and customer support.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/20d04c7f-6186-4675-b35e-66d3577ee58e
+- 👨‍👩‍👧‍👦 Family collaboration
+- 💳 Razorpay UPI & QR payments
+- 📊 Financial analytics
+- 📄 Digital PDF receipts
+- 🤖 Google Gemini AI support
+- 📧 Automated email notifications
+- 🔥 Firebase real-time database
 
-## Run Locally
+## Tech Stack
 
-**Prerequisites:**  Node.js
+- React
+- TypeScript
+- Vite
+- Node.js
+- Firebase
+- Razorpay
+- Google Gemini AI
+- Nodemailer
+- jsPDF
 
+## Getting Started
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+npm run dev

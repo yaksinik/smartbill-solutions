@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Allow: /privacy
+Allow: /terms
+Allow: /refund
+Allow: /contact
+Allow: /about
+
+Sitemap: https://ais-pre-aazxejbb2ssvahzziyotqi-749886252673.asia-southeast1.run.app/sitemap.xml

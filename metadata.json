@@ -1,0 +1,5 @@
+{
+  "name": "SmartBill",
+  "description": "A family-centric online bill payment and management system with shared account access, payment history, and admin analytics.",
+  "requestFramePermissions": []
+}

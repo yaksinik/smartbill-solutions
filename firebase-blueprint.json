@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "familyId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "address": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Family": {
+      "title": "Family",
+      "description": "Family group for shared billing",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "primaryUserId": { "type": "string" },
+        "members": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "primaryUserId"]
+    },
+    "Bill": {
+      "title": "Bill",
+      "description": "Bill details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "familyId": { "type": "string" },
+        "type": { "type": "string" },
+        "provider": { "type": "string" },
+        "amount": { "type": "number" },
+        "dueDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["paid", "unpaid"] },
+        "planDetails": { "type": "string" }
+      },
+      "required": ["id", "familyId", "type", "amount", "status"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Payment transaction history",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "billId": { "type": "string" },
+        "userId": { "type": "string" },
+        "familyId": { "type": "string" },
+        "memberName": { "type": "string" },
+        "amount": { "type": "number" },
+        "method": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["id", "billId", "userId", "familyId", "amount", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/families/{familyId}": {
+      "schema": "Family",
+      "description": "Family groups"
+    },
+    "/bills/{billId}": {
+      "schema": "Bill",
+      "description": "Bills for families"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Payment history"
+    }
+  }
+}

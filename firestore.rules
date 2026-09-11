@@ -1,0 +1,117 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Allow connection testing
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email == "yaksinik@gmail.com" ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isFamilyMember(familyId) {
+      return isAuthenticated() && (
+        isAdmin() ||
+        (exists(/databases/$(database)/documents/families/$(familyId)) && (
+          get(/databases/$(database)/documents/families/$(familyId)).data.members.hasAny([request.auth.uid]) ||
+          get(/databases/$(database)/documents/families/$(familyId)).data.primaryUserId == request.auth.uid ||
+          get(/databases/$(database)/documents/families/$(familyId)).data.members.hasAny([request.auth.token.email])
+        ))
+      );
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role']) &&
+             data.uid is string && data.email is string &&
+             data.role in ['admin', 'user'];
+    }
+
+    function isValidFamily(data) {
+      return data.keys().hasAll(['id', 'primaryUserId', 'members']) &&
+             data.id is string && data.primaryUserId is string &&
+             data.members is list;
+    }
+
+    function isValidBill(data) {
+      return data.keys().hasAll(['id', 'type', 'amount', 'status']) &&
+             data.id is string && 
+             (data.familyId == null || data.familyId is string) &&
+             data.type is string && data.amount is number &&
+             data.status in ['paid', 'unpaid'];
+    }
+
+    function isValidPayment(data) {
+      return data.keys().hasAll(['id', 'billId', 'userId', 'amount', 'timestamp']) &&
+             data.id is string && data.billId is string &&
+             data.userId is string && 
+             (data.familyId == null || data.familyId is string) &&
+             data.amount is number && data.timestamp is string;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow update: if isAuthenticated() && (isOwner(userId) || isAdmin());
+    }
+
+    match /families/{familyId} {
+      allow read: if isFamilyMember(familyId);
+      allow create: if isAuthenticated();
+      allow update: if isFamilyMember(familyId);
+      allow delete: if isAdmin() || (isAuthenticated() && exists(/databases/$(database)/documents/families/$(familyId)) && get(/databases/$(database)/documents/families/$(familyId)).data.primaryUserId == request.auth.uid);
+    }
+
+    match /bills/{billId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        request.auth.uid == resource.data.userId ||
+        (resource.data.familyId != null && isFamilyMember(resource.data.familyId))
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        request.auth.uid == resource.data.userId ||
+        (resource.data.familyId != null && isFamilyMember(resource.data.familyId))
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated() && (
+        isAdmin() ||
+        request.auth.uid == resource.data.userId ||
+        (resource.data.familyId != null && isFamilyMember(resource.data.familyId))
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
